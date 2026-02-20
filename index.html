@@ -18,31 +18,26 @@
         <button onclick="speakText()">목소리로 듣기</button>
     </div>
 
-<script>
-    async function speakText() {
-        const text = document.getElementById('text-input').value;
-        const apiKey = '여기에_발급받은_API키_입력'; 
-        const voiceId = '보민_보이스_ID'; // TTSMaker에서 확인한 ID
+function speakText() {
+    const text = document.getElementById('text-input').value;
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // 브라우저가 지원하는 목소리 목록 가져오기
+    const voices = window.speechSynthesis.getVoices();
+    
+    // 한국어 목소리 중 가장 자연스러운 것 선택 (보통 Google이나 Microsoft 음성)
+    const korVoice = voices.find(voice => voice.lang === 'ko-KR' && voice.name.includes('Google')) 
+                     || voices.find(voice => voice.lang === 'ko-KR');
 
-        const response = await fetch('https://api.ttsmaker.com/v1/create-tts-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text: text,
-                voice_id: voiceId,
-                api_key: apiKey,
-                audio_format: 'mp3'
-            })
-        });
-
-        const data = await response.json();
-        if (data.status === 'success') {
-            const audio = new Audio(data.audio_file_url);
-            audio.play();
-        } else {
-            alert('에러 발생: ' + data.message);
-        }
+    if (korVoice) {
+        utterance.voice = korVoice;
     }
-</script>
+    
+    utterance.lang = 'ko-KR';
+    utterance.rate = 1.0; // 속도 (0.1 ~ 10)
+    utterance.pitch = 1.0; // 음높이 (0 ~ 2) - 낮추면 더 차분해집니다.
+    
+    window.speechSynthesis.speak(utterance);
+}
 </body>
 </html>
