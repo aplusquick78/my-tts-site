@@ -17,7 +17,7 @@
         <textarea id="text-input" placeholder="읽어줄 내용을 입력하세요..."></textarea>
         <button onclick="speakText()">목소리로 듣기</button>
     </div>
-
+<script>
 function speakText() {
     const text = document.getElementById('text-input').value;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -39,5 +39,6 @@ function speakText() {
     
     window.speechSynthesis.speak(utterance);
 }
+</script>
 </body>
 </html>
