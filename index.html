@@ -18,17 +18,31 @@
         <button onclick="speakText()">목소리로 듣기</button>
     </div>
 
-    <script>
-        function speakText() {
-            const text = document.getElementById('text-input').value;
-            if (!text) { alert('내용을 입력해주세요!'); return; }
-            
-            // Web Speech API 사용
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ko-KR'; // 한국어 설정
-            utterance.rate = 1.0;     // 속도 조절
-            window.speechSynthesis.speak(utterance);
+<script>
+    async function speakText() {
+        const text = document.getElementById('text-input').value;
+        const apiKey = '여기에_발급받은_API키_입력'; 
+        const voiceId = '보민_보이스_ID'; // TTSMaker에서 확인한 ID
+
+        const response = await fetch('https://api.ttsmaker.com/v1/create-tts-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: text,
+                voice_id: voiceId,
+                api_key: apiKey,
+                audio_format: 'mp3'
+            })
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            const audio = new Audio(data.audio_file_url);
+            audio.play();
+        } else {
+            alert('에러 발생: ' + data.message);
         }
-    </script>
+    }
+</script>
 </body>
 </html>
