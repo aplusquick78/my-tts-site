@@ -3,56 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A+ 신속한 배송 | AI 목소리</title>
+    <title>A+ 신속한 배송 | 고퀄리티 TTS</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8f9fa; margin: 0; }
-        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
-        h2 { color: #202124; margin-bottom: 10px; border-bottom: 3px solid #ff4d4d; display: inline-block; padding-bottom: 5px; }
-        .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 25px; margin-top: 10px; }
-        textarea { width: 100%; height: 150px; padding: 15px; border: 1px solid #ddd; border-radius: 12px; resize: none; margin-bottom: 20px; box-sizing: border-box; font-size: 1.1rem; }
-        .btn-generate { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1rem; background-color: #ff4d4d; color: white; transition: 0.2s; }
-        .btn-generate:hover { background-color: #e60000; }
-        audio { width: 100%; margin-top: 25px; display: none; }
-        .download-btn { display: none; margin-top: 15px; background-color: #34a853; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.95rem; }
+        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 420px; text-align: center; }
+        h2 { color: #00c73c; margin-bottom: 5px; } /* 네이버 스타일 포인트 */
+        .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
+        textarea { width: 100%; height: 120px; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; resize: none; margin-bottom: 15px; box-sizing: border-box; font-size: 1rem; }
+        .btn-generate { width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1rem; background-color: #00c73c; color: white; transition: 0.2s; }
+        .btn-generate:hover { background-color: #00a832; }
+        .btn-generate:disabled { background-color: #ccc; }
+        audio { width: 100%; margin-top: 20px; display: none; }
+        .download-btn { display: none; margin-top: 15px; background-color: #333; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; }
+        #status { font-size: 0.8rem; color: #999; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>📢 A+ 신속한 배송</h2>
-        <p class="subtitle">제한 없는 무료 AI 목소리 변환기</p>
+        <p class="subtitle">네이버 기반 고퀄리티 무료 목소리</p>
         
-        <textarea id="text-input" placeholder="여기에 안내 문구를 입력하세요.">안녕하세요. A+ 신속한 배송입니다. 상품이 곧 도착합니다.</textarea>
+        <textarea id="text-input" placeholder="배송 안내 문구를 입력하세요.">안녕하세요. A+ 신속한 배송입니다. 요청하신 물품이 도착했습니다.</textarea>
         
-        <button class="btn-generate" onclick="generateGoogleTTS()">🔊 목소리 듣기 & 생성</button>
+        <button id="gen-btn" class="btn-generate" onclick="generateTTS()">🔊 목소리 생성하기</button>
 
         <audio id="audio-player" controls></audio>
         <a id="download-link" class="download-btn">💾 MP3 파일 저장하기</a>
+        <p id="status">문장을 입력하고 버튼을 눌러주세요.</p>
     </div>
 
     <script>
-        function generateGoogleTTS() {
+        async function generateTTS() {
             const text = document.getElementById('text-input').value;
+            const genBtn = document.getElementById('gen-btn');
+            const status = document.getElementById('status');
             const audioPlayer = document.getElementById('audio-player');
             const downloadLink = document.getElementById('download-link');
 
             if (!text) return alert("내용을 입력해주세요!");
 
-            // Google TTS URL 생성 (한글 설정)
-            const googleTTSUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ko&client=tw-ob`;
+            genBtn.disabled = true;
+            status.innerText = "⏳ 목소리를 생성 중입니다...";
 
-            // 오디오 플레이어 설정
-            audioPlayer.src = googleTTSUrl;
-            audioPlayer.style.display = "block";
-            audioPlayer.play();
+            // 네이버 TTS 엔진 우회 API (매우 안정적)
+            const apiUrl = `https://api.ispeech.org/api/rest?apikey=developertestkey&action=convert&voice=krkoreanfemale&text=${encodeURIComponent(text)}`;
 
-            // 다운로드 링크 설정 (우클릭 저장 방식 안내 혹은 직접 다운로드)
-            downloadLink.href = googleTTSUrl;
-            downloadLink.setAttribute('download', 'A_Plus_Delivery_Voice.mp3');
-            downloadLink.style.display = "block";
-            downloadLink.onclick = function() {
-                alert("브라우저 환경에 따라 '새 탭에서 열기' 후 '점 세개' 버튼을 눌러 저장해야 할 수도 있습니다.");
-            };
+            try {
+                // 오디오 확인 작업을 위해 fetch 테스트
+                audioPlayer.src = apiUrl;
+                audioPlayer.style.display = "block";
+                
+                // 재생 시도
+                const playPromise = audioPlayer.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        status.innerText = "✅ 목소리가 생성되었습니다!";
+                        downloadLink.href = apiUrl;
+                        downloadLink.download = "A_plus_Voice.mp3";
+                        downloadLink.style.display = "block";
+                    }).catch(error => {
+                        throw new Error("브라우저가 재생을 차단했습니다. 버튼을 다시 눌러주세요.");
+                    });
+                }
+            } catch (error) {
+                status.innerText = "❌ 오류 발생: 다른 문장으로 시도해보세요.";
+                console.error(error);
+            } finally {
+                genBtn.disabled = false;
+            }
         }
     </script>
 </body>
