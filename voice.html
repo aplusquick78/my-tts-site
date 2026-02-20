@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A+ 신속한 배송 | Nova 목소리</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
+        h2 { color: #ff0050; margin-bottom: 5px; } /* 틱톡 컬러 포인트 */
+        .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #eee; border-radius: 12px; resize: none; margin-bottom: 20px; box-sizing: border-box; font-size: 1rem; }
+        .btn-generate { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1rem; background-color: #000; color: white; transition: 0.2s; }
+        .btn-generate:hover { background-color: #333; }
+        .btn-generate:disabled { background-color: #ccc; }
+        #audio-player { width: 100%; margin-top: 25px; display: none; }
+        .download-btn { display: none; margin-top: 15px; background-color: #25f4ee; color: #000; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; }
+        #status { font-size: 0.85rem; color: #888; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>📢 A+ 신속한 배송</h2>
+        <p class="subtitle">틱톡 Nova AI 목소리 변환 (무료)</p>
+        
+        <textarea id="text-input" placeholder="안내 문구를 입력하세요. (예: 상품이 신속하게 배송 중입니다!)"></textarea>
+        
+        <button id="gen-btn" class="btn-generate" onclick="generateTikTokAudio()">🔊 Nova 목소리 만들기</button>
+
+        <audio id="audio-player" controls></audio>
+        <a id="download-link" class="download-btn">💾 MP3 파일 저장하기</a>
+        <p id="status">문장을 입력하고 버튼을 눌러보세요.</p>
+    </div>
+
+    <script>
+        async function generateTikTokAudio() {
+            const text = document.getElementById('text-input').value;
+            const genBtn = document.getElementById('gen-btn');
+            const status = document.getElementById('status');
+            const audioPlayer = document.getElementById('audio-player');
+            const downloadLink = document.getElementById('download-link');
+
+            if (!text) return alert("내용을 입력해주세요!");
+
+            genBtn.disabled = true;
+            status.innerText = "⏳ Nova 목소리를 불러오는 중...";
+
+            try {
+                // 틱톡 TTS 무료 API 엔드포인트 (오픈소스 프록시 사용)
+                const response = await fetch('https://tiktok-tts.weilbyte.dev/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: 'ko_kr_002' // ko_kr_002가 틱톡의 한국어 Nova(여성) 음성 코드입니다.
+                    })
+                });
+
+                if (!response.ok) throw new Error("음성 생성에 실패했습니다.");
+
+                const data = await response.json();
+                const audioBase64 = data.audio; // API가 base64 데이터를 반환함
+
+                const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+
+                // 오디오 재생
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = "block";
+                audioPlayer.play();
+
+                // 다운로드 설정
+                downloadLink.href = audioUrl;
+                downloadLink.download = "Nova_Voice.mp3";
+                downloadLink.style.display = "block";
+
+                status.innerText = "✅ 목소리가 생성되었습니다!";
+            } catch (error) {
+                console.error(error);
+                status.innerText = "❌ 오류 발생 (잠시 후 다시 시도해주세요)";
+            } finally {
+                genBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
