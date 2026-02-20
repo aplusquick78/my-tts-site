@@ -3,96 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A+ 신속한 배송 | 고퀄리티 TTS</title>
+    <title>A+ 신속한 배송 | AI 음성 서비스</title>
     <style>
-        :root { --main-color: #ff0050; --sub-color: #25f4ee; }
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 95%; max-width: 420px; text-align: center; position: relative; overflow: hidden; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, var(--main-color), var(--sub-color)); }
-        h2 { margin-top: 10px; color: #333; font-size: 1.4rem; }
-        textarea { width: 100%; height: 130px; border: 1.5px solid #eee; border-radius: 15px; padding: 15px; font-size: 1rem; resize: none; box-sizing: border-box; margin-bottom: 20px; transition: 0.3s; }
-        textarea:focus { border-color: var(--main-color); outline: none; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
-        .btn-nova { background-color: #000; color: white; }
-        .btn-nova:hover { background-color: #222; transform: translateY(-2px); }
-        .btn-nova:disabled { background-color: #ccc; cursor: not-allowed; }
-        #audio-player { width: 100%; margin-top: 20px; display: none; }
-        .download-link { display: none; margin-top: 15px; background-color: var(--sub-color); color: #000; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; }
-        #status { margin-top: 15px; font-size: 0.85rem; color: #888; min-height: 1.2rem; }
+        :root { --brand-red: #ff4d4d; --brand-dark: #1a1a1b; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 35px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); width: 90%; max-width: 420px; text-align: center; border-top: 10px solid var(--brand-red); }
+        h2 { color: var(--brand-dark); margin-bottom: 5px; font-size: 1.6rem; }
+        .desc { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
+        textarea { width: 100%; height: 140px; border: 2px solid #eee; border-radius: 15px; padding: 15px; font-size: 1.05rem; resize: none; box-sizing: border-box; transition: 0.3s; line-height: 1.6; }
+        textarea:focus { border-color: var(--brand-red); outline: none; box-shadow: 0 0 8px rgba(255,77,77,0.2); }
+        .btn-main { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; background-color: var(--brand-red); color: white; transition: 0.2s; margin-top: 15px; }
+        .btn-main:hover { background-color: #e60000; transform: translateY(-2px); }
+        .btn-main:disabled { background-color: #ccc; transform: none; }
+        #audio-player { width: 100%; margin-top: 25px; display: none; }
+        .download-box { display: none; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 10px; border: 1px dashed #ccc; }
+        .download-link { color: #007bff; text-decoration: none; font-weight: bold; font-size: 0.95rem; }
+        #status { margin-top: 15px; font-size: 0.85rem; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>🚀 A+ 신속한 배송</h2>
-    <p style="color:#666; font-size:0.85rem; margin-bottom:20px;">Nova(틱톡) 고퀄리티 무료 음성</p>
+    <p class="desc">Nova/네이버 스타일 고퀄리티 음성 엔진</p>
     
-    <textarea id="text-input" placeholder="안내 문구를 입력하세요...">안녕하세요! A+ 신속한 배송입니다. 상품이 곧 도착할 예정입니다.</textarea>
+    <textarea id="text-input" placeholder="배송 안내 문구를 입력하세요...">안녕하세요! 신속한 배송입니다. 상품이 곧 도착할 예정입니다.</textarea>
     
-    <div class="btn-group">
-        <button id="gen-btn" class="btn-nova" onclick="generateAudio()">🔊 Nova 목소리 생성</button>
-        <a id="download-link" class="download-link">💾 MP3 파일 저장하기</a>
-    </div>
+    <button id="gen-btn" class="btn-main" onclick="startTTS()">🔊 목소리 생성 & 듣기</button>
 
     <audio id="audio-player" controls></audio>
-    <p id="status"></p>
+    
+    <div id="download-box" class="download-box">
+        <a id="download-link" class="download-link" target="_blank">💾 MP3 파일 저장하기 (클릭)</a>
+    </div>
+
+    <p id="status">문장을 입력하고 버튼을 눌러주세요.</p>
 </div>
 
 <script>
-    async function generateAudio() {
+    function startTTS() {
         const text = document.getElementById('text-input').value;
         const genBtn = document.getElementById('gen-btn');
         const status = document.getElementById('status');
         const audioPlayer = document.getElementById('audio-player');
+        const downloadBox = document.getElementById('download-box');
         const downloadLink = document.getElementById('download-link');
 
         if (!text) return alert("내용을 입력해주세요!");
 
         genBtn.disabled = true;
-        status.innerText = "⏳ 목소리 생성 중... (최대 10초 소요)";
-        status.style.color = "#888";
+        status.innerText = "⏳ 목소리 신속하게 생성 중...";
+        
+        // 고퀄리티 한국어 음성 API (CORS 차단이 적은 엔드포인트)
+        const encodedText = encodeURIComponent(text);
+        const ttsUrl = `https://api.ispeech.org/api/rest?apikey=developertestkey&action=convert&voice=krkoreanfemale&text=${encodedText}`;
 
-        try {
-            // 틱톡 TTS 엔진 사용 (우회 API)
-            const response = await fetch('https://tiktok-tts.weilbyte.dev/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text: text,
-                    voice: 'ko_kr_002' // Nova 목소리 코드
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success === false || !data.audio) {
-                throw new Error("서버 응답 오류");
-            }
-
-            const audioBase64 = data.audio;
-            const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
-
-            // 결과 적용
-            audioPlayer.src = audioUrl;
-            audioPlayer.style.display = "block";
+        // 오디오 객체 생성 및 로드 확인
+        audioPlayer.src = ttsUrl;
+        audioPlayer.style.display = "block";
+        
+        audioPlayer.oncanplaythrough = () => {
             audioPlayer.play();
-
-            downloadLink.href = audioUrl;
-            downloadLink.download = "Aplus_Nova_Voice.mp3";
-            downloadLink.style.display = "block";
-
-            status.innerText = "✅ 생성 완료!";
+            status.innerText = "✅ 생성 완료! 바로 재생됩니다.";
             status.style.color = "#28a745";
-
-        } catch (error) {
-            console.error(error);
-            // 실패 시 다른 백업 서버 시도 알림
-            status.innerText = "❌ 현재 접속자가 많습니다. 잠시 후 다시 시도해 주세요.";
-            status.style.color = "#ff4d4d";
-        } finally {
+            
+            // 다운로드 링크 활성화
+            downloadLink.href = ttsUrl;
+            downloadBox.style.display = "block";
             genBtn.disabled = false;
-        }
+        };
+
+        audioPlayer.onerror = () => {
+            status.innerText = "❌ 서버 응답 지연. 다시 시도해 주세요.";
+            status.style.color = "#ff4d4d";
+            genBtn.disabled = false;
+        };
     }
 </script>
 
